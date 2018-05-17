@@ -108,4 +108,15 @@ trait SuperClass
     {
         return self::classinfo();
     }
+
+   /**
+    * @param array|null $args
+    * @return self::class
+    */
+    public static function newInstance(array $args = null)
+    {
+        $obj = new self($args);
+
+        return $obj;
+    }
 }
