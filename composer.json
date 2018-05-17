@@ -5,6 +5,9 @@
     ],
     "files": [
         "src/Classinfo/Classinfo.php"
-    ]
+    ],
+    "psr-4": {
+      "Classinfo\\": "src/Classinfo/"
+    }
   }
 }
