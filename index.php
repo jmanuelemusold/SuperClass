@@ -1,3 +1,3 @@
 <?php
 
-require __DIR__ . '/examples/example.custom-getters-setters.php';
+require __DIR__ . '/examples/example.chained-assignment.php';

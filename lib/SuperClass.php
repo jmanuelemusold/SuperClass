@@ -3,6 +3,14 @@
 trait SuperClass
 {
    /**
+    * @see SuperClass::__superclass__call
+    */
+    public function __call(string $name, array $args)
+    {
+        return $this->__superclass__call($name, $args);
+    }
+
+   /**
     * @see SuperClass::__superclass__construct
     */
     public function __construct(array $args = null)
@@ -24,6 +32,18 @@ trait SuperClass
     public function __set(string $name, $value)
     {
         return $this->__superclass__set($name, $value);
+    }
+
+   /**
+    * @param string $name
+    * @param array $args
+    * @return self::class
+    */
+    private function __superclass__call(string $name, array $args)
+    {
+        $this->__set($name, $args[0]);
+
+        return $this;
     } 
 
    /**
