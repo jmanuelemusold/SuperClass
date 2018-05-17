@@ -3,6 +3,11 @@
 trait SuperClass
 {
    /**
+    * @var \Classinfo
+    */
+    private static $__classinfo;
+
+   /**
     * @see SuperClass::__superclass__call
     */
     public function __call(string $name, array $args)
@@ -78,5 +83,29 @@ trait SuperClass
             return $this->{$setter}($value);
         else
             return $this->{$name} = $value;
-    } 
+    }
+
+   /**
+    * @return \Classinfo
+    */
+    private static function classinfo()
+    {
+        $info = self::$__classinfo;
+
+        if (!$info) {
+            $info = new Classinfo(self::class);
+
+            self::$__classinfo = $info;
+        }
+
+        return $info;
+    }
+
+   /**
+    * @see SuperClass::classinfo
+    */
+    public static function info()
+    {
+        return self::classinfo();
+    }
 }

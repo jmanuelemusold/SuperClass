@@ -2,6 +2,9 @@
   "autoload": {
     "classmap": [
       "lib/"
+    ],
+    "files": [
+        "src/Classinfo/Classinfo.php"
     ]
   }
 }
