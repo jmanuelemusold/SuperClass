@@ -11,6 +11,11 @@ class Classinfo
     protected $class;
 
    /**
+    * @var array
+    */
+    protected $tags;
+
+   /**
     * @return string
     */ 
     public function getClassName()
@@ -32,6 +37,14 @@ class Classinfo
     public function getDocComment()
     {
         return $this->refl()->getDocComment();
+    }
+
+   /**
+    * @return string
+    */ 
+    public function getFileName()
+    {
+        return $this->refl()->getFileName();
     }
 
    /**
@@ -67,6 +80,16 @@ class Classinfo
                 default:
                     $obj = $args;
             }
+
+            $this->addTag($obj);
         }
+    }
+
+   /**
+    * @param mixed $tag
+    */
+    private function addTag($tag)
+    {
+        $this->tags[] = $tag;
     }
 }
