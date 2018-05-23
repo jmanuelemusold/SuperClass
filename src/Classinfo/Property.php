@@ -10,7 +10,7 @@ class Property
    /**
     * @var string
     */
-    protected $accesor = 'rw';
+    protected $accessor = 'rw';
 
    /**
     * @var string
@@ -311,7 +311,7 @@ class Property
                 $obj->maxLength = $min;
 
             elseif ($min && $max)
-                $obj->range = array($min, $max);
+                $obj->range = array('minLength' => $min, 'maxLength' => $max);
 
             if ($dec) { 
                 $flag = true; $obj->round = $dec;
