@@ -353,4 +353,20 @@ class Property
         
         return $var;
     }
+
+   /**
+    * @return bool
+    */
+    public function isReadable()
+    {
+        return ($this->accessor != 'w');
+    }
+ 
+   /**
+    * @return bool
+    */
+    public function isWritable()
+    {
+        return ($this->accessor != 'r');
+    }
 }
