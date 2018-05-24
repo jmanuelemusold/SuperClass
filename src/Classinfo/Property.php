@@ -317,15 +317,6 @@ class Property
    /**
     * @param string $str
     * @return array|object
-    */ 
-    private static function parseSubTypeOf(string $str)
-    {
-        // TODO
-    } 
-
-   /**
-    * @param string $str
-    * @return array|object
     */
     private static function splitTypeOf(string $str)
     {
