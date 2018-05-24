@@ -12,11 +12,11 @@ require __DIR__ . '/../vendor/autoload.php';
  * @property array[bool] $arr_f
  * @property arr[boolean|chr] $arr_g
  * @property [bool|char|float] $arr_h
- * @property arr(2)[boolean|chr|float(2)] $arr_i
+ * @property arr(8)[boolean|chr|float(2)] $arr_i
  * @property array(2-3)[bool|char|float(2-3)] $arr_j
  * @property arr<bool, char> $arr_k
  * @property array(2-3|5)<boolean, chr> $arr_l
- * @property arr(2-3|5-6)<bool, chr, float> $arr_m
+ * @property arr(2-3|5-6)<bool, chr, float(2)> $arr_m
  * @property bool $bool_a
  * @property boolean $bool_b
  * @property float $float_a
@@ -26,10 +26,14 @@ require __DIR__ . '/../vendor/autoload.php';
  * @property float(2-3|5,6) $float_e
  * @property float(2-3,4|5-6) $float_f
  * @property float(2-3|5-6,7) $float_g
+ * @property 'A'|'B'|'C' $cons_a
+ * @property 1|2|3|4 $cons_b
+ * @property \Foo $foo
+ * @property Bar $bar
  */
 class Foo
 {
     use \SuperClass;
 }
 
-Foo::info();
+print_r(Foo::info());

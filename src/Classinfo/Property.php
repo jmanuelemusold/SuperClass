@@ -104,7 +104,10 @@ class Property
     */
     private static function parse(string $str)
     {
-        foreach (self::splitTypeOf($str) as $typeOf) {
+        $str = trim($str);
+
+        foreach (self::splitTypeOf($str) as $str) {
+            $obj = (object)[];
 
             foreach ([
                 "/\((.*?)\)/",
@@ -114,23 +117,121 @@ class Property
 
             ] as $grp => $re) {
 
-                if (!preg_match($re, $typeOf, $argv)) continue;
+                if (!preg_match($re, $str, $argv)) continue;
 
                 if ($grp == 0)
                     $sizeOf = self::parseSizeOf($argv[1]);
 
                 elseif ($grp == 1)
-                    $subTypeOf = self::parseSubTypeOf($argv[1]);
+                    $subTypeOf = self::parse($argv[1]);
 
                 elseif ($grp == 2)
-                    list($keyOf, $arrayOf) = self::parseArrayOf($argv[1]);
+                    list($arrayOf, $keyOf) = self::parseArrayOf($argv[1]);
 
                 else
                     $args = $argv[0];
             }
+
+            if (preg_match("/^\[/", $str)) 
+                $str = "arr$str";
+            
+            ///
+
+            preg_match("/^([^\<\(\[\:]+)/", $str, $is);
+
+            switch ($is[1]) {
+                case 'arr':
+                case 'array':
+                    $typeOf = 'SplArray';
+                    break;
+                case 'bool':
+                case 'boolean':
+                    $typeOf = 'SplBool';
+                    break;
+                case 'chr':
+                case 'char':
+                    $typeOf = 'SplChar';
+                    break;
+                case 'enum':
+                    $typeOf = 'SplEnum';
+                    break;
+                case 'float':
+                    $typeOf = 'SplFloat';
+                    break;
+                case 'fn':
+                case 'func':
+                case 'function':
+                    $instanceOf = '\Closure';
+                    break;
+                case 'int':
+                case 'integer':
+                    $typeOf = 'SplInt';
+                    break;
+                case 'mixed':
+                    $typeOf = '*';
+                case 'NULL':
+                    $typeOf = 'SplNull';
+                    break;
+                case 'num':
+                case 'number':
+                    $typeOf = 'SplNumber';
+                    break;
+                case 'obj':
+                case 'object':
+                    $typeOf = 'SplObject';
+                    break;
+                case 're':
+                case 'regex':
+                    $instanceOf = 'Regex';
+                    break;
+                case 'rs':
+                case 'resource':
+                    $typeOf = 'SplResource';
+                    break;
+                case 'str':
+                case 'string':
+                    $typeOf = 'SplString';
+                    break;
+
+                default:
+                    
+                    if (preg_match("/^[\'|\"](.+)[\'|\"]$/", $is[1], $str))
+                        $cons[] = $str[1];
+
+                    elseif (is_numeric($is[1]))
+                        $cons[] = $is[1];
+
+                    else
+                        $instanceOf = $is[1];
+
+                    break;
+            }
+
+            foreach([
+                'args',
+                'arrayOf', 
+                'instanceOf', 
+                'keyOf',
+                'sizeOf',
+                'subTypeOf',
+                'typeOf'
+            
+            ] as $key) {
+
+                if (isset($$key)) {
+                    $obj->$key = $$key;
+
+                    unset($$key);
+                }
+            }
+
+            if (array_keys((array) $obj))
+                $arr[] = $obj;
         }
 
-        // return (count($typeOf) > 1) ? $typeOf : $typeOf[0];
+        if (@$cons) $arr[]->cons = $cons;
+
+        return (count($arr) > 1) ? $arr : $arr[0];
     }
 
    /**
@@ -139,7 +240,10 @@ class Property
     */ 
     private static function parseArrayOf(string $str)
     {
-        // TODO
+        foreach (self::splitTypeOf($str) as $typeOf)
+            $keyOf[] = self::parse($typeOf);
+
+        return array(array_pop($keyOf), (count($keyOf) > 1) ? $keyOf : $keyOf[0]);
     } 
 
    /**
@@ -161,10 +265,10 @@ class Property
             $has = false;
 
             foreach ([
-                "/^(\d+)$/"       => "maxLength",
-                "/^(\d+)-(\1)$/"  => "length",
-                "/^(\d+)-(\d+)$/" => "range",
-                "/^(\d+)-\*$/"    => "minLength"
+                "/^(\d+)$/"       => 'maxLength',
+                "/^(\d+)-(\1)$/"  => 'length',
+                "/^(\d+)-(\d+)$/" => 'range',
+                "/^(\d+)-\*$/"    => 'minLength'
             
             ] as $re => $rule) {
                 
@@ -206,7 +310,7 @@ class Property
                 if (count($obj) == 1) $sizeOf->$key = $obj[0];
             }
         }
-        
+
         return $sizeOf;
     }
 
@@ -248,7 +352,7 @@ class Property
 
         $var = [];
 
-        foreach (preg_split("/\|/", $str) as $str) {
+        foreach (preg_split("/\||\,/", $str) as $str) {
 
             for ($i = 0; $i < count($args); $i++)
                 $str = str_replace("{{$i}}", $args[$i], $str);
