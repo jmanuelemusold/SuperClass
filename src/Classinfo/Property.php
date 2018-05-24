@@ -80,9 +80,17 @@ class Property
     */ 
     public function __construct($args)
     {
-        preg_match("/^([^\$]+)\s\\$(\w+)\s?(.+)?$/", $args, $argv);
+        $re = "/^([^\$]+)\s\\$(\w+)\s?(.+)?$/";
 
-        @list($raw, $typeOf, $name, $desc) = $argv;
+        preg_match($re, $args, $argv);
+
+        @list(
+            $raw, 
+            $typeOf, 
+            $name, 
+            $desc,
+
+        ) = $argv;
 
         $this->setName($name);
         $this->setDescription($desc);
@@ -96,181 +104,39 @@ class Property
     */
     private static function parse(string $str)
     {
-        foreach (self::splitMultipleTypeOf($str) as $i => $xyz)
-            $typeOf[$i] = self::parseTypeOf($xyz);
+        foreach (self::splitTypeOf($str) as $typeOf) {
 
-        return (count($typeOf) > 1) ? $typeOf : $typeOf[0];
-    }
+            foreach ([
+                "/\((.*?)\)/",
+                "/\[(.*?)\]/",
+                "/\<(.*?)\>/",
+                "/:(.*)/"
 
-   /**
-    * @param string $typeOf
-    * @return array|object
-    */
-    private static function splitMultipleTypeOf(string $str)
-    {
-        $args = []; $i = 0;
+            ] as $grp => $re) {
 
-        foreach ([
-            "/\<(.*?)\>/", 
-            "/\[(.*?)\]/", 
-            "/\((.*?)\)/"
+                if (!preg_match($re, $typeOf, $argv)) continue;
 
-        ] as $re) {
+                if ($grp == 0)
+                    $sizeOf = self::parseSizeOf($argv[1]);
 
-            if (preg_match_all($re, $str, $matches)) {
+                elseif ($grp == 1)
+                    $subTypeOf = self::parseSubTypeOf($argv[1]);
 
-                foreach ($matches[0] as $xyz) {
-                    $args[$i] = $xyz;
+                elseif ($grp == 2)
+                    list($keyOf, $arrayOf) = self::parseArrayOf($argv[1]);
 
-                    $str = str_replace($xyz, "{{$i}}", $str); $i++;
-                }
-            }
-        }
-
-        ///
-
-        $var = [];
-
-        foreach (preg_split("/\|/", $str) as $i => $xyz) {
-
-            if (preg_match_all("/\{(\d+)\}/", $xyz, $grp)) {
-
-                foreach ($grp[1] as $d)
-                    $xyz = str_replace("{{$d}}", $args[$d], $str);
-            }
-
-            $var[$i] = $xyz;
-        }
-
-        return $var;
-    }
-
-   /**
-    * @param string $str
-    * @return array
-    */ 
-    private static function parseTypeOf(string $str)
-    {
-        foreach ([
-            "/\<(.*?)\>/",
-            "/\[(.*?)\]/",
-            "/\((.*?)\)/"
-        
-        ] as $subset => $re) {
-
-            if (!preg_match($re, $str, $argv)) continue;
-
-            elseif ($subset == 0)
-                list($keyOf, $arrayOf) = self::parseArrayOf($argv[1]);
-
-            elseif ($subset == 1)
-                $subTypeOf = self::parse($argv[1]);
-
-            elseif ($subset == 2) {
-                $sizeOf = self::parseSizeOf($argv[1]);
-            }
-        }
-
-        ///
-
-        if (preg_match("/^\[.+\]$/", $str))
-            $str = "array$str";
-
-        preg_match("/^([^\<\(\[]+)/", $str, $typeOf);
-
-        switch ($typeOf[0]) {
-            case 'array':
-                $typeOf = 'SplArray';
-            case 'bool':
-            case 'boolean':
-                $typeOf = 'SplBool';
-                break;
-            case 'chr':
-            case 'char':
-                $typeOf = 'SplChar'; 
-                break;
-            case 'float':
-                $typeOf = 'SplFloat';
-                break;
-            case 'fn':
-            case 'func':
-                $instanceOf = '\Closure';
-                break;
-            case 'int':
-            case 'integer':
-                $typeOf = 'SplInt';
-                break;
-            case 'mixed':
-                break;
-            case 'null':
-                $typeOf = 'SplNull';
-                break;
-            case 'num':
-            case 'number':
-                $typeOf = 'SplNumber';
-                break;
-            case 'obj':
-            case 'object':
-                $typeOf = 'SplObject';
-                break;
-            case "re:":
-            case "regex:":
-                $instanceOf = 'Regex';
-                break;
-            case 'resource':
-            case 'rs':
-                $typeOf = 'SplResource';
-                break;
-            case 'str':
-            case 'string':
-                $typeOf = 'SplString';
-                break;
-            
-            default:
-                if (preg_match("/^\'.+\'$/", $str))
-                    $cons = substr($str, 1, -1);
-
-                elseif (is_numeric($str))
-                    $cons = $str;
                 else
-                    $instanceOf = $typeOf[0];
-
-                break;
+                    $args = $argv[0];
+            }
         }
 
-        ///
-
-        $obj = (object)[];
-
-        if (isset($cons))
-            $obj->cons = $cons;
-
-        elseif (isset($instanceOf))
-            $obj->instanceOf = $instanceOf;
-
-        elseif (isset($typeOf)) {
-            $obj->typeOf = $typeOf;
-
-            if (isset($sizeOf))
-                $obj->sizeOf = $sizeOf;
-
-            if (isset($subTypeOf))
-                $obj->subTypeOf = $subTypeOf;
-
-            if (isset($keyOf))
-                $obj->keyof = $keyOf;
-
-            if (isset($arrayOf))
-                $obj->arrayOf = $arrayOf;
-        }
-
-        return $obj;
+        // return (count($typeOf) > 1) ? $typeOf : $typeOf[0];
     }
 
    /**
     * @param string $str
-    * @return array
-    */
+    * @return array 
+    */ 
     private static function parseArrayOf(string $str)
     {
         // TODO
@@ -278,72 +144,118 @@ class Property
 
    /**
     * @param string $str
-    * @return array
+    * @return array|object
     */ 
     private static function parseSizeOf(string $str)
     {
-        $re = "/^(\d+|\*)\-?(\d+|\*)?,?(\d+)?$/";
-
-        foreach (preg_split("/\|/", $str) as $xyz) {
-
-            preg_match($re, $xyz, $matches);
-
-            @list(
-                $raw,
-                $min,
-                $max,
-                $dec
-
-            ) = $matches;
-
+        foreach (preg_split("/\|/", $str) as $args) {
             $obj = (object)[];
 
-            if ($min == $max && $min != '*')
-                $obj->length = $min;
+            if (preg_match("/,(\d+)$/", $args, $match)) {
+                $obj->round = $match[1]; $round = true;
 
-            elseif ($min == '*' && $max)
-                $obj->maxLength = $max;
-            
-            elseif ($min && $max == '*')
-                $obj->minLength = $min;
-
-            elseif ($min && !$max)
-                $obj->maxLength = $min;
-
-            elseif ($min && $max)
-                $obj->range = array('minLength' => $min, 'maxLength' => $max);
-
-            if ($dec) { 
-                $flag = true; $obj->round = $dec;
+                $args = preg_replace("/,(\d+)$/", '', $args); 
             }
 
-            $rules[] = $obj;
-        }
+            ///
+            $has = false;
 
-        if (isset($flag)) 
-            return (count($rules) > 1) ? $rules : $rules[0];
-        
-        else {
+            foreach ([
+                "/^(\d+)$/"       => "maxLength",
+                "/^(\d+)-(\1)$/"  => "length",
+                "/^(\d+)-(\d+)$/" => "range",
+                "/^(\d+)-\*$/"    => "minLength"
+            
+            ] as $re => $rule) {
+                
+                if (!$has && preg_match($re, $args, $match)) {
+                    $has = true;
 
-            $sizeOf = (object)[];
+                    if ($rule == 'range') {
+                        list(
+                            $raw,
+                            $min, 
+                            $max
 
-            foreach ($rules as $i) {
+                        ) = $match;
 
-                foreach ($i as $key => $val) {
-                    
-                    if ($key == 'length' || $key == 'range')
-                        $sizeOf->$key[] = $val;
+                        $obj->range = array($min, $max);
 
-                    elseif ($key == 'minLength' || $key == 'maxLength')
-                        $sizeOf->$key = $val;
-
+                    } else
+                        $obj->$rule = $match[1];
                 }
             }
 
-            if (@count($range = $sizeOf->range) == 1) 
-                $sizeOf->range = $range[0];
-
-            return $sizeOf;
+            $arr[] = $obj;
         }
+
+        if (@$round)
+            $sizeOf = (count($arr) > 1) ? $arr : $arr[0];
+
+        else {
+            $sizeOf = (object)[];
+
+            foreach ($arr as $obj) {
+                $key = array_keys((array) $obj)[0];
+                
+                $sizeOf->$key[] = $obj->$key;
+            }
+        
+            foreach ($sizeOf as $key => $obj) {
+                
+                if (count($obj) == 1) $sizeOf->$key = $obj[0];
+            }
+        }
+        
+        return $sizeOf;
+    }
+
+   /**
+    * @param string $str
+    * @return array|object
+    */ 
+    private static function parseSubTypeOf(string $str)
+    {
+        // TODO
+    } 
+
+   /**
+    * @param string $str
+    * @return array|object
+    */
+    private static function splitTypeOf(string $str)
+    {
+        $args = []; $i = 0;
+
+        foreach ([
+            "/\<(.*?)\>/", 
+            "/\[(.*?)\]/", 
+            "/\((.*?)\)/",
+
+        ] as $re) {
+
+            if (preg_match_all($re, $str, $matches)) {
+
+                foreach ($matches[0] as $x) {
+                    $args[$i] = $x;
+
+                    $str = str_replace($x, "{{$i}}", $str); $i++;
+                }
+            }
+        }
+        
+        /// 
+
+        $var = [];
+
+        foreach (preg_split("/\|/", $str) as $str) {
+
+            for ($i = 0; $i < count($args); $i++)
+                $str = str_replace("{{$i}}", $args[$i], $str);
+
+            $var[] = $str;
+        }
+        
+        return $var;
     }
 }
