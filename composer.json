@@ -4,7 +4,9 @@
       "lib/"
     ],
     "files": [
-        "src/Classinfo/Classinfo.php"
+        "src/Classinfo/Classinfo.php",
+        "src/Helpers/function.get-source-file.php",
+        "src/Helpers/function.get-package-name.php"
     ],
     "psr-4": {
       "Classinfo\\": "src/Classinfo/"
