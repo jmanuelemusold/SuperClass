@@ -4,9 +4,7 @@ use Classinfo\Property;
 use Classinfo\PropertyRead;
 use Classinfo\PropertyWrite;
 
-/**
- * @package SuperClass
- */
+
 class Classinfo
 {
    /**
@@ -67,7 +65,7 @@ class Classinfo
         if ($pkg = $this->getTagByName("package"))
             return $pkg;
 
-        $ns = preg_split("/\\/", $this->getNamespaceName());
+        $ns = preg_split("/\\//", $this->getNamespaceName());
 
         return $ns[0];
     }
@@ -132,12 +130,12 @@ class Classinfo
             
             list(
                 $raw, 
-                $tag, 
+                $name, 
                 $args
 
             ) = $match;
 
-            switch ($tag) {
+            switch ($name) {
                 case 'property':
                     $tag = new Property($args);
                     break;
@@ -158,7 +156,7 @@ class Classinfo
             if ($tag instanceof Property)
                 $this->addProperty($tag->getName(), $tag);
             else
-                $this->addTag($tag);
+                $this->addTag($name, $tag);
         }
     }
 
