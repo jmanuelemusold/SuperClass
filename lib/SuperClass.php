@@ -106,7 +106,7 @@ trait SuperClass
     */
     public static function info()
     {
-        return self::classinfo();
+        return self::classinfo()->withTags();
     }
 
    /**
@@ -118,5 +118,22 @@ trait SuperClass
         $obj = new self($args);
 
         return $obj;
+    }
+
+   /**
+    * @see SuperClass::property
+    */
+    public static function prop($name)
+    {
+        return self::property($name);
+    }
+
+   /**
+    * @param string $name
+    * @return \Classinfo\Property
+    */ 
+    public static function property($name)
+    {
+        return self::classinfo()->getProperty($name);
     }
 }

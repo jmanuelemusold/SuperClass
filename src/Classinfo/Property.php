@@ -46,7 +46,7 @@ class Property
    /**
     * @return string
     */ 
-    public function getName($name)
+    public function getName()
     {
         return $this->name;
     }
@@ -229,7 +229,7 @@ class Property
                 $arr[] = $obj;
         }
 
-        if (@$cons) $arr[]->cons = $cons;
+        if (@$cons) @$arr[]->cons = $cons;
 
         return (count($arr) > 1) ? $arr : $arr[0];
     }

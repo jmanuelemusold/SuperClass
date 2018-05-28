@@ -1,5 +1,9 @@
 <?php
 
+use Classinfo\Property;
+use Classinfo\PropertyRead;
+use Classinfo\PropertyWrite;
+
 /**
  * @package SuperClass
  */
@@ -11,7 +15,7 @@ class Classinfo
     protected $class;
 
    /**
-    * @var array
+    * @var obj
     */
     protected $tags;
 
@@ -48,11 +52,65 @@ class Classinfo
     }
 
    /**
-    * @return \ReflectionClass
+    * @return string
     */
-    private function refl()
+    public function getNamespaceName()
     {
-        return new ReflectionClass($this->getClassName());
+        return $this->refl()->getNamespaceName();
+    }
+
+   /**
+    * @return string
+    */ 
+    public function getPackageName()
+    {
+        if ($pkg = $this->getTagByName("package"))
+            return $pkg;
+
+        $ns = preg_split("/\\/", $this->getNamespaceName());
+
+        return $ns[0];
+    }
+
+   /**
+    * @return array
+    */
+    public function getProperties()
+    {
+        return $this->getTagByName('property');
+    }
+
+   /**
+    * @param string $name
+    * @return \Classinfo\Property
+    */
+    public function getProperty(string $name)
+    {
+        return $this->getProperties()->{$name};
+    }
+
+   /**
+    * @param string $name
+    * @return object
+    */ 
+    public function getTagByName(string $name)
+    {
+        if (!$this->tags) 
+            $this->parseDocComment();
+
+        return @$this->tags[$name];
+    }
+
+   /**
+    * @param array $names
+    * @return array
+    */ 
+    public function getTagsByName(...$names)
+    {
+        foreach ($names as $name)
+            $tags[] = $this->getTagByName($name);
+
+        return @$tags;
     }
 
    /**
@@ -61,35 +119,119 @@ class Classinfo
     public function __construct(string $class)
     {
         $this->setClassName($class);
+    }
 
-        preg_match_all("/@([\w\-]+)\s(.+)/", $this->getDocComment(), $matches, PREG_SET_ORDER);
+   /**
+    * 
+    */ 
+    protected function parseDocComment()
+    {
+        $comm = $this->getDocComment();
 
-        foreach ($matches as $tag) {
-            list($raw, $tag, $args) = $tag;
+        foreach ($this->parse($comm) as $match) {
+            
+            list(
+                $raw, 
+                $tag, 
+                $args
+
+            ) = $match;
 
             switch ($tag) {
                 case 'property':
-                    $obj = new Classinfo\Property($args); break;
+                    $tag = new Property($args);
+                    break;
 
                 case 'property-read':
-                    $obj = new Classinfo\PropertyRead($args); break;
+                    $tag = new PropertyRead($args);
+                    break;
 
                 case 'property-write':
-                    $obj = new Classinfo\PropertyWrite($args); break;
+                    $tag = new PropertyWrite($args);
+                    break;
 
                 default:
-                    $obj = $args;
+                    $tag = trim($args);
+                    break;
             }
 
-            $this->addTag($obj);
+            if ($tag instanceof Property)
+                $this->addProperty($tag->getName(), $tag);
+            else
+                $this->addTag($tag);
         }
     }
 
    /**
-    * @param mixed $tag
-    */
-    private function addTag($tag)
+    * @param string $comm
+    * @return array
+    */ 
+    protected function parse(string $comm)
     {
-        $this->tags[] = $tag;
+        preg_match_all("/@([\w\-]+)\s(.+)/", $comm, $matches, PREG_SET_ORDER);
+
+        return $matches;
+    }
+
+   /**
+    * @param string $name
+    * @param object $prop
+    */ 
+    protected function addProperty(string $name, $prop)
+    {
+        @$this->tags['property']->$name = $prop;
+    }
+
+   /**
+    * @param string $tag
+    * @param mixed $obj
+    */
+    private function addTag(string $name, $obj)
+    {
+        if ($tag = $this->tags[$name])
+            
+            if (is_array($tag))
+                $tag[] = $obj;
+            else
+                $tag = array($tag, $obj);
+        
+        else
+            $tag = $obj;
+
+        $this->tags[$name] = $tag;
+    } 
+
+   /**
+    * @see Classinfo::getProperties
+    */ 
+    public function properties()
+    {
+        return $this->getProperties();
+    }
+
+   /**
+    * @see Classinfo::getProperty
+    */
+    public function property(string $name)
+    {
+        return $this->getProperty($name);
+    }
+
+   /**
+    * @return \ReflectionClass
+    */
+    private function refl()
+    {
+        return new ReflectionClass($this->getClassName());
+    }
+
+   /**
+    * @return \Classinfo
+    */
+    public function withTags()
+    {
+        $this->parseDocComment(); 
+
+        return $this;
     }
 }
