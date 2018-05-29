@@ -1,3 +1,3 @@
 <?php
 
-require __DIR__ . '/examples/example.classinfo.php';
+require __DIR__ . '/examples/example.config.php';
