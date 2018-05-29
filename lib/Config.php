@@ -43,10 +43,12 @@ trait Config
 
             ] as $__FILE__) 
 
-                if (!$cfg && file_exists($__FILE__))
+                if (file_exists($__FILE__)) {
                     $cfg = require $__FILE__;
-            
 
+                    break;
+                }
+            
             if (!$cfg) throw new FileNotFoundException();
 
             self::$__config = $cfg;
@@ -56,15 +58,8 @@ trait Config
 
         ///
 
-        foreach ($args as $i => $key) {
-            $args[$i] = '';
-
-            foreach (preg_split("/\./", $key) as $item)
-                $args[$i] .= "['$item']";
-        }
-
-        foreach ($args as $key) 
-            eval('$vars[] = @$cfg' . $key . ';');
+        foreach ($args as $key)
+            eval('$vars[] = @$cfg' . preg_replace("/(\w+)(\.|$)/", "[$1]", $key) . ';');
 
         return (@count($vars) == 1) ? $vars[0] : $vars;
     }

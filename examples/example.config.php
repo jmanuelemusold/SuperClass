@@ -8,7 +8,7 @@ class Foo
 
     public function __construct()
     {
-        print_r(self::config('foo'));
+        print_r(self::config());
     }
 }
 
