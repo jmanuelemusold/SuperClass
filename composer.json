@@ -1,7 +1,8 @@
 {
   "autoload": {
     "classmap": [
-      "lib/"
+      "lib/",
+      "src/Exceptions/"
     ],
     "files": [
         "src/Classinfo/Classinfo.php",
