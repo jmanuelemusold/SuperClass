@@ -11,7 +11,11 @@ class Foo
 
     public function __construct()
     {
-        print_r(self::config());
+        list(
+            $foo,
+            $bar
+
+        ) = self::config();
     }
 }
 
