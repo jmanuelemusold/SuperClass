@@ -35,7 +35,7 @@ trait Config
 
             } while ($PATH != dirname($PATH));
 
-            $PKG = strtolower(get_package_name(__CLASS__));
+            $PKG = strtolower( get_package_name(__CLASS__));
 
             foreach([
                 "{$PATH}/../config/{$PKG}.php",
@@ -44,25 +44,38 @@ trait Config
                 "{$PATH}/../config.php",
                 "{$PATH}/../config.example.php"
 
-            ] as $__FILE__) 
+            ] as $__FILE__) if (file_exists($__FILE__)) {
 
-                if (file_exists($__FILE__)) {
-                    $cfg = require $__FILE__;
+                $cfg = require $__FILE__; break;
 
-                    break;
-                }
-            
+            }
+    
             if (!$cfg) throw new FileNotFoundException();
-
+            
             self::$__config = $cfg;
+        }
+
+        ///
+
+        $re = "/list\(([^\)]+)\)\s+?=\s+?self::config\(\)/";
+
+        if (preg_match($re, get_callback(), $match)) {
+            $arr = true;
+
+            foreach (preg_split("/\,/", $match[1]) as $var)
+                $args[] = substr(trim($var), 1);
+    
         }
 
         if (!$args) return $cfg;
 
         ///
 
-        foreach ($args as $key)
-            eval('$vars[] = @$cfg' . preg_replace("/(\w+)(\.|$)/", "[$1]", $key) . ';');
+        foreach ($args as $name) {
+            $name = preg_replace("/(\w+)(\.|$)/", "['$1']", $name);
+
+            eval("\$vars[] = @\$cfg{$name};");
+        }
 
         return (@count($vars) == 1) ? $vars[0] : $vars;
     }

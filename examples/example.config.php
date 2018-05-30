@@ -12,11 +12,13 @@ class Foo
     public function __construct()
     {
         list(
-            $foo,
-            $bar
-
+            $path,
+            $url
+        
         ) = self::config();
+
+        echo $path;
     }
 }
 
-$foo = new Foo();   // Prints 'Array ([foo] => bar)'
+$foo = new Foo();   // Prints 'https://github.com/jmanuelemus/SuperClass'
