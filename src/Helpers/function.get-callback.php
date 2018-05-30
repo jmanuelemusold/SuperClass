@@ -31,5 +31,5 @@ function get_callback()
 
     preg_match("/\{|\;/", $src, $pos, PREG_OFFSET_CAPTURE);
 
-    echo trim( strrev( substr($src, 0, $pos[0][1] )));
+    return trim( strrev( substr($src, 0, $pos[0][1] )));
 }
