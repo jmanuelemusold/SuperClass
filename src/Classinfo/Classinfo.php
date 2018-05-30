@@ -4,7 +4,9 @@ use Classinfo\Property;
 use Classinfo\PropertyRead;
 use Classinfo\PropertyWrite;
 
-
+/**
+ * @package SuperClass  
+ */
 class Classinfo
 {
    /**
@@ -13,7 +15,7 @@ class Classinfo
     protected $class;
 
    /**
-    * @var obj
+    * @var array
     */
     protected $tags;
 
@@ -93,8 +95,7 @@ class Classinfo
     */ 
     public function getTagByName(string $name)
     {
-        if (!$this->tags) 
-            $this->parseDocComment();
+        if (!$this->tags) $this->parseDocComment();
 
         return @$this->tags[$name];
     }
@@ -120,7 +121,7 @@ class Classinfo
     }
 
    /**
-    * 
+    * @see Classinfo::getTagByName
     */ 
     protected function parseDocComment()
     {

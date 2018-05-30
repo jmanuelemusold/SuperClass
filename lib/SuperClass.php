@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @package SuperClass
+ */
 trait SuperClass
 {
    /**
@@ -115,9 +118,7 @@ trait SuperClass
     */
     public static function newInstance(array $args = null)
     {
-        $obj = new self($args);
-
-        return $obj;
+        return (new self($args));
     }
 
    /**

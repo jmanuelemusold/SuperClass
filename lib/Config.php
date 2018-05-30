@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @package SuperClass
+ */
 trait Config
 {
    /**

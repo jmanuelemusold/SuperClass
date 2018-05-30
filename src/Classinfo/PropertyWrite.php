@@ -7,7 +7,7 @@ namespace Classinfo;
  */
 class PropertyWrite extends Property
 {
-    /**
+   /**
     * @var string
     */
     protected $accessor = 'w';

@@ -2,6 +2,9 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+/**
+ * @package Example
+ */
 class Foo
 {
     use \Config;
@@ -12,4 +15,4 @@ class Foo
     }
 }
 
-$foo = new Foo();
+$foo = new Foo();   // Prints 'Array ([foo] => bar)'

@@ -7,7 +7,7 @@ namespace Classinfo;
  */
 class PropertyRead extends Property
 {
-    /**
+   /**
     * @var string
     */
     protected $accessor = 'r';
