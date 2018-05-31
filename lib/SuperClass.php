@@ -69,6 +69,11 @@ trait SuperClass
     */
     private function __superclass__get(string $name)
     {
+        if (!$this->property($name)->isReadable()) 
+            throw new AccessViolationException();
+
+        ///
+
         if (method_exists($this, $getter = 'get' . ucfirst($name)))
             return $this->{$getter}();
         else
@@ -82,6 +87,11 @@ trait SuperClass
     */
     private function __superclass__set(string $name, $value)
     {
+        if (!$this->property($name)->isWritable())
+            throw new AccessViolationException();
+
+        ///
+
         if (method_exists($this, $setter = 'set' . ucfirst($name)))
             return $this->{$setter}($value);
         else
