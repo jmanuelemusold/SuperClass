@@ -369,4 +369,14 @@ class Property
     {
         return ($this->accessor != 'r');
     }
+
+   /**
+    * @return bool
+    */
+    public function validate($value)
+    {
+        // TODO
+
+        return true;
+    }
 }

@@ -87,8 +87,13 @@ trait SuperClass
     */
     private function __superclass__set(string $name, $value)
     {
-        if (!$this->property($name)->isWritable())
+        $prop = $this->property($name);
+
+        if (!$prop->isWritable())
             throw new AccessViolationException();
+
+        else if (!$prop->validate($value))
+            throw new InvalidArgumentException();
 
         ///
 
