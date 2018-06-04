@@ -2,7 +2,8 @@
   "autoload": {
     "classmap": [
       "lib/",
-      "src/Exceptions/"
+      "src/Exceptions/",
+      "src/Spl/"
     ],
     "files": [
         "src/Classinfo/Classinfo.php",
@@ -11,7 +12,8 @@
         "src/Helpers/function.get-package-name.php"
     ],
     "psr-4": {
-      "Classinfo\\": "src/Classinfo/"
+      "Classinfo\\": "src/Classinfo/",
+      "Spl\\": "src/Spl/"
     }
   }
 }
