@@ -12,4 +12,20 @@ class SplBool extends Spl
     {
         $this->set($value);
     }
+
+   /**
+    * @return bool
+    */
+    public function isFalse()
+    {
+        return $this->get() === false;
+    }
+
+   /**
+    * @return bool
+    */ 
+    public function isTrue()
+    {
+        return $this->get() === true;
+    }
 }
