@@ -3,13 +3,15 @@
     "classmap": [
       "lib/",
       "src/Exceptions/",
+      "src/Schema/",
       "src/Spl/"
     ],
     "files": [
         "src/Classinfo/Classinfo.php",
         "src/Helpers/function.get-callback.php",
         "src/Helpers/function.get-source-file.php",
-        "src/Helpers/function.get-package-name.php"
+        "src/Helpers/function.get-package-name.php",
+        "src/Spl/Spl.php"
     ],
     "psr-4": {
       "Classinfo\\": "src/Classinfo/",

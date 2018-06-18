@@ -7,22 +7,22 @@ class Spl
 {
    /**
     * @var mixed
-    */
-    protected $__value;
+    */ 
+    protected $__val;
 
    /**
     * @return mixed
-    */ 
-    protected function get()
+    */
+    protected function get($value)
     {
-        return $this->__value;
-    }
+        return $this->__val;
+    } 
 
    /**
-    * @return mixed $value
+    * @param mixed
     */
     protected function set($value)
     {
-        $this->__value = $value;
-    }
+        $this->__val = $value;
+    } 
 }
