@@ -2,8 +2,8 @@
   "autoload": {
     "classmap": [
       "lib/",
+      "src/",
       "src/Exceptions/",
-      "src/Schema/",
       "src/Spl/"
     ],
     "files": [
